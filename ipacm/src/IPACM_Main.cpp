@@ -108,13 +108,6 @@ int ipa_get_if_index(char *if_name, int *if_index);
 
 IPACM_Neighbor *neigh;
 IPACM_IfaceManager *ifacemgr;
-
-#ifdef FEATURE_IPACM_RESTART
-int ipa_reset();
-/* support ipacm restart */
-int ipa_query_wlan_client();
-#endif
-
 #ifdef FEATURE_IPACM_HAL
 	IPACM_OffloadManager* OffloadMng;
 	HAL *hal;
@@ -859,11 +852,6 @@ int main(int argc, char **argv)
 	(void)argc;
 	(void)argv;
 
-#ifdef FEATURE_IPACM_RESTART
-	IPACMDBG_H("RESET IPA-HW rules\n");
-	ipa_reset();
-#endif
-
 	neigh = new IPACM_Neighbor();
 	ifacemgr = new IPACM_IfaceManager();
 #ifdef FEATURE_IPACM_HAL
@@ -1067,25 +1055,3 @@ int ipa_get_if_index
 	close(fd);
 	return IPACM_SUCCESS;
 }
-
-#ifdef FEATURE_IPACM_RESTART
-int ipa_reset()
-{
-	int fd = -1;
-
-	if ((fd = open(IPA_DEVICE_NAME, O_RDWR)) < 0) {
-		IPACMERR("Failed opening %s.\n", IPA_DEVICE_NAME);
-		return IPACM_FAILURE;
-	}
-
-	if (ioctl(fd, IPA_IOC_CLEANUP) < 0) {
-		IPACMERR("IOCTL IPA_IOC_CLEANUP call failed: %s \n", strerror(errno));
-		close(fd);
-		return IPACM_FAILURE;
-	}
-
-	IPACMDBG_H("send IPA_IOC_CLEANUP \n");
-	close(fd);
-	return IPACM_SUCCESS;
-}
-#endif
